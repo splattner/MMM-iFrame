@@ -12,9 +12,11 @@ Module.register("MMM-iFrame",{
 		defaults: {
 				height:"300px",
 				width:"100%",
-                                updateInterval: 0.5 * 60 * 1000,
-                                url: ["http://magicmirror.builders/"],
-                                scrolling: "no"
+                updateInterval: 0.5 * 60 * 1000,
+                url: ["http://magicmirror.builders/"],
+                scrolling: "no",
+                forceUpdateInterval: 1000 * 60 * 60,
+                noCacheStringDelimiter: "?",
 		},
 
         start: function () {
@@ -25,15 +27,23 @@ Module.register("MMM-iFrame",{
                          self.updateDom(1000);
                          console.log('update' + count++)
                          }, this.config.updateInterval);
+                } else {
+                	setInterval( function () { 
+                         self.updateDom(1000);
+                         }, this.config.forceUpdateInterval);
                 }
+
+
 	},
-  getRandomInt: function (min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  },
-resume: function() {
-   console.log("Resuming");
-   return this.getDom();
-},
+
+	getRandomInt: function (min, max) {
+    	return Math.floor(Math.random() * (max - min)) + min;
+	},
+
+	resume: function() {
+		console.log("Resuming");
+		return this.getDom();
+	},
 
         // Override dom generator.
 	getDom: function() {
@@ -41,20 +51,11 @@ resume: function() {
 		iframe.style = "border:0"
 		iframe.width = this.config.width;
 		iframe.height = this.config.height;
-                iframe.scrolling = this.config.scrolling;
-                var url_index = 0;
-         //       console.log("currentURL:" + this.currentURL);
-                var repeat = true;
-                while(repeat) {
-                    url_index = this.getRandomInt(0,this.config.url.length);
-                    futureURL = this.config.url[url_index];
-                    console.log("URL_length:" + this.config.url.length + " " + "URL_index:" + url_index + " " + "url:" + futureURL);
-           //         if( futureURL == currentURL) {
-                        iframe.src = futureURL;
-             //           currentURL = futureURL;
-                        repeat = false;
-               //     } 
-                }
+        iframe.scrolling = this.config.scrolling;
+        var url_index = 0;
+		futureURL = this.config.url[url_index] + this.config.noCacheStringDelimiter + "date=" + Date.now();
+        console.log("Reload IFrame: " + futureURL);
+		iframe.src = futureURL;
 		return iframe;
 	}
 
